@@ -107,7 +107,7 @@ def validate_data_types(df: pd.DataFrame) -> dict:
         actual_dtype = str(df[column].dtype)
 
         if expected_type == "string":
-            if actual_dtype not in {"object", "string"}:
+           if actual_dtype not in {"object", "string", "str"}:
                 issues[column] = {
                     "expected": expected_type,
                     "actual": actual_dtype,
