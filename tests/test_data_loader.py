@@ -7,6 +7,7 @@ from src.data.loader import load_dataset
 from src.validation.validator import validate_schema
 from src.validation.validator import validate_data_types
 from src.validation.validator import validate_missing_values
+from src.validation.validator import validate_empty_strings
 
 
 DATASET_PATH = (
@@ -61,3 +62,11 @@ def test_dataset_has_no_pandas_missing_values():
     missing_values = validate_missing_values(df)
 
     assert missing_values == {}
+
+def test_empty_string_validation_detects_total_charges_issue():
+    df = load_dataset(DATASET_PATH)
+
+    empty_values = validate_empty_strings(df)
+
+    assert "TotalCharges" in empty_values
+    assert empty_values["TotalCharges"] == 11
