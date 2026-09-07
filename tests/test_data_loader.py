@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from src.data.loader import load_dataset
+from src.validation.validator import validate_schema
 
 
 DATASET_PATH = (
@@ -39,3 +40,8 @@ def test_load_dataset_has_expected_columns():
 def test_load_dataset_rejects_missing_file():
     with pytest.raises(FileNotFoundError):
         load_dataset("does_not_exist.csv")
+
+def test_dataset_schema_is_valid():
+    df = load_dataset(DATASET_PATH)
+
+    validate_schema(df)
