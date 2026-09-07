@@ -15,29 +15,29 @@ DATASET_PATH = (
 )
 
 
-EXPECTED_COLUMNS = [
-    "customerID",
-    "gender",
-    "SeniorCitizen",
-    "Partner",
-    "Dependents",
-    "tenure",
-    "PhoneService",
-    "MultipleLines",
-    "InternetService",
-    "OnlineSecurity",
-    "OnlineBackup",
-    "DeviceProtection",
-    "TechSupport",
-    "StreamingTV",
-    "StreamingMovies",
-    "Contract",
-    "PaperlessBilling",
-    "PaymentMethod",
-    "MonthlyCharges",
-    "TotalCharges",
-    "Churn",
-]
+EXPECTED_DTYPES = {
+    "customerID": "string",
+    "gender": "string",
+    "SeniorCitizen": "integer",
+    "Partner": "string",
+    "Dependents": "string",
+    "tenure": "integer",
+    "PhoneService": "string",
+    "MultipleLines": "string",
+    "InternetService": "string",
+    "OnlineSecurity": "string",
+    "OnlineBackup": "string",
+    "DeviceProtection": "string",
+    "TechSupport": "string",
+    "StreamingTV": "string",
+    "StreamingMovies": "string",
+    "Contract": "string",
+    "PaperlessBilling": "string",
+    "PaymentMethod": "string",
+    "MonthlyCharges": "float",
+    "TotalCharges": "numeric",
+    "Churn": "string",
+}
 
 
 def validate_schema(df: pd.DataFrame) -> None:
