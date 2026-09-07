@@ -5,6 +5,7 @@ import pytest
 
 from src.data.loader import load_dataset
 from src.validation.validator import validate_schema
+from src.validation.validator import validate_data_types
 
 
 DATASET_PATH = (
@@ -45,3 +46,10 @@ def test_dataset_schema_is_valid():
     df = load_dataset(DATASET_PATH)
 
     validate_schema(df)
+
+def test_dataset_data_types_are_valid_or_flagged():
+    df = load_dataset(DATASET_PATH)
+
+    issues = validate_data_types(df)
+
+    assert "TotalCharges" in issues
