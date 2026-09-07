@@ -151,6 +151,23 @@ def validate_missing_values(df: pd.DataFrame) -> dict:
         if count > 0
     }
 
+def validate_empty_strings(df: pd.DataFrame) -> dict:
+    """
+    Identify empty or whitespace-only string values.
+
+    Returns a dictionary containing columns with empty/whitespace values.
+    """
+
+    empty_counts = {}
+
+    for column in df.select_dtypes(include=["object", "string"]).columns:
+        count = df[column].astype("string").str.strip().eq("").sum()
+
+        if count > 0:
+            empty_counts[column] = int(count)
+
+    return empty_counts
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -190,6 +207,18 @@ def main() -> None:
             print(f"- {column}: {count} missing values")
     else:
         print("Missing value validation: PASSED")
+
+        print("\n=== Empty/Whitespace Value Validation ===")
+
+    empty_values = validate_empty_strings(df)
+
+    if empty_values:
+        print("Empty/whitespace validation: INVESTIGATION REQUIRED")
+
+        for column, count in empty_values.items():
+            print(f"- {column}: {count} empty/whitespace values")
+    else:
+        print("Empty/whitespace validation: PASSED")
 
 if __name__ == "__main__":
     main()
