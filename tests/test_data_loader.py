@@ -6,6 +6,7 @@ import pytest
 from src.data.loader import load_dataset
 from src.validation.validator import validate_schema
 from src.validation.validator import validate_data_types
+from src.validation.validator import validate_missing_values
 
 
 DATASET_PATH = (
@@ -53,3 +54,10 @@ def test_dataset_data_types_are_valid_or_flagged():
     issues = validate_data_types(df)
 
     assert "TotalCharges" in issues
+
+def test_dataset_has_no_pandas_missing_values():
+    df = load_dataset(DATASET_PATH)
+
+    missing_values = validate_missing_values(df)
+
+    assert missing_values == {}

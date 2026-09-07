@@ -136,6 +136,21 @@ def validate_data_types(df: pd.DataFrame) -> dict:
 
     return issues
 
+def validate_missing_values(df: pd.DataFrame) -> dict:
+    """
+    Identify missing values in the dataset.
+
+    Returns a dictionary containing columns with missing values.
+    """
+
+    missing_counts = df.isna().sum()
+
+    return {
+        column: int(count)
+        for column, count in missing_counts.items()
+        if count > 0
+    }
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -163,6 +178,18 @@ def main() -> None:
             )
     else:
         print("Data type validation: PASSED")
+
+        print("\n=== Missing Value Validation ===")
+
+    missing_values = validate_missing_values(df)
+
+    if missing_values:
+        print("Missing value validation: INVESTIGATION REQUIRED")
+
+        for column, count in missing_values.items():
+            print(f"- {column}: {count} missing values")
+    else:
+        print("Missing value validation: PASSED")
 
 if __name__ == "__main__":
     main()
