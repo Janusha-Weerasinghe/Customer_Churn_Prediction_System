@@ -62,6 +62,34 @@ EXPECTED_DTYPES = {
     "Churn": "string",
 }
 
+EXPECTED_CATEGORIES = {
+    "gender": {"Female", "Male"},
+    "Partner": {"Yes", "No"},
+    "Dependents": {"Yes", "No"},
+    "PhoneService": {"Yes", "No"},
+    "MultipleLines": {"Yes", "No", "No phone service"},
+    "InternetService": {"DSL", "Fiber optic", "No"},
+    "OnlineSecurity": {"Yes", "No", "No internet service"},
+    "OnlineBackup": {"Yes", "No", "No internet service"},
+    "DeviceProtection": {"Yes", "No", "No internet service"},
+    "TechSupport": {"Yes", "No", "No internet service"},
+    "StreamingTV": {"Yes", "No", "No internet service"},
+    "StreamingMovies": {"Yes", "No", "No internet service"},
+    "Contract": {
+        "Month-to-month",
+        "One year",
+        "Two year",
+    },
+    "PaperlessBilling": {"Yes", "No"},
+    "PaymentMethod": {
+        "Electronic check",
+        "Mailed check",
+        "Bank transfer (automatic)",
+        "Credit card (automatic)",
+    },
+    "Churn": {"Yes", "No"},
+}
+
 def validate_schema(df: pd.DataFrame) -> None:
     """Validate that the dataset contains the expected columns."""
 
@@ -237,6 +265,30 @@ def validate_numerical_values(df: pd.DataFrame) -> dict:
 
     return issues
 
+def validate_categorical_values(df: pd.DataFrame) -> dict:
+    """
+    Validate categorical columns against their expected values.
+
+    Returns a dictionary containing unexpected values.
+    """
+
+    issues = {}
+
+    for column, allowed_values in EXPECTED_CATEGORIES.items():
+        actual_values = set(df[column].dropna().unique())
+
+        unexpected_values = actual_values - allowed_values
+
+        if unexpected_values:
+            issues[column] = {
+                "unexpected_values": sorted(unexpected_values),
+                "count": int(
+                    df[column].isin(unexpected_values).sum()
+                ),
+            }
+
+    return issues
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -320,6 +372,22 @@ def main() -> None:
         )
     else:
         print("Numerical validation: PASSED")
+
+        print("\n=== Categorical Value Validation ===")
+
+    categorical_issues = validate_categorical_values(df)
+
+    if categorical_issues:
+        print("Categorical validation: INVESTIGATION REQUIRED")
+
+        for column, issue in categorical_issues.items():
+            print(
+                f"- {column}: "
+                f"unexpected values={issue['unexpected_values']} "
+                f"(count={issue['count']})"
+            )
+    else:
+        print("Categorical validation: PASSED")
 
 if __name__ == "__main__":
     main()
