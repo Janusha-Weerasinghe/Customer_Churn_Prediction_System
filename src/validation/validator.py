@@ -15,6 +15,29 @@ DATASET_PATH = (
 )
 
 
+EXPECTED_COLUMNS = [
+    "customerID",
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "TotalCharges",
+    "Churn",
+]
 EXPECTED_DTYPES = {
     "customerID": "string",
     "gender": "string",
@@ -38,7 +61,6 @@ EXPECTED_DTYPES = {
     "TotalCharges": "numeric",
     "Churn": "string",
 }
-
 
 def validate_schema(df: pd.DataFrame) -> None:
     """Validate that the dataset contains the expected columns."""
@@ -72,6 +94,47 @@ def validate_schema(df: pd.DataFrame) -> None:
             "Column order does not match the expected schema."
         )
 
+def validate_data_types(df: pd.DataFrame) -> dict:
+    """
+    Check whether dataset columns have the expected data types.
+
+    Returns a dictionary containing columns that require investigation.
+    """
+
+    issues = {}
+
+    for column, expected_type in EXPECTED_DTYPES.items():
+        actual_dtype = str(df[column].dtype)
+
+        if expected_type == "string":
+            if actual_dtype not in {"object", "string"}:
+                issues[column] = {
+                    "expected": expected_type,
+                    "actual": actual_dtype,
+                }
+
+        elif expected_type == "integer":
+            if not pd.api.types.is_integer_dtype(df[column]):
+                issues[column] = {
+                    "expected": expected_type,
+                    "actual": actual_dtype,
+                }
+
+        elif expected_type == "float":
+            if not pd.api.types.is_float_dtype(df[column]):
+                issues[column] = {
+                    "expected": expected_type,
+                    "actual": actual_dtype,
+                }
+
+        elif expected_type == "numeric":
+            if not pd.api.types.is_numeric_dtype(df[column]):
+                issues[column] = {
+                    "expected": expected_type,
+                    "actual": actual_dtype,
+                }
+
+    return issues
 
 def main() -> None:
     df = load_dataset(DATASET_PATH)
@@ -82,9 +145,24 @@ def main() -> None:
         validate_schema(df)
         print("Schema validation: PASSED")
     except ValueError as error:
-        print(f"Schema validation: FAILED")
+        print("Schema validation: FAILED")
         print(error)
 
+    print("\n=== Data Type Validation ===")
+
+    dtype_issues = validate_data_types(df)
+
+    if dtype_issues:
+        print("Data type validation: INVESTIGATION REQUIRED")
+
+        for column, issue in dtype_issues.items():
+            print(
+                f"- {column}: "
+                f"expected={issue['expected']}, "
+                f"actual={issue['actual']}"
+            )
+    else:
+        print("Data type validation: PASSED")
 
 if __name__ == "__main__":
     main()
