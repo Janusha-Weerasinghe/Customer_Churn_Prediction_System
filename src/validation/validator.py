@@ -218,7 +218,26 @@ def main() -> None:
         for column, count in empty_values.items():
             print(f"- {column}: {count} empty/whitespace values")
     else:
-        print("Empty/whitespace validation: PASSED")
+        print("Empty/whitespace validation: PASSED")   
+
+    if "TotalCharges" in empty_values:
+        print("\n=== TotalCharges Empty Records ===")
+
+        empty_mask = (
+            df["TotalCharges"]
+            .astype("string")
+            .str.strip()
+            .eq("")
+        )
+
+        print(
+            df.loc[
+                empty_mask,
+                ["customerID", "tenure", "MonthlyCharges", "TotalCharges", "Churn"]
+            ].to_string(index=False)
+        )
+
+
 
 if __name__ == "__main__":
     main()
