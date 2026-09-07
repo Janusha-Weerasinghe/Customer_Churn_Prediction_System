@@ -168,6 +168,75 @@ def validate_empty_strings(df: pd.DataFrame) -> dict:
 
     return empty_counts
 
+def validate_numerical_values(df: pd.DataFrame) -> dict:
+    """
+    Validate numerical feature values against expected business rules.
+
+    Returns a dictionary containing detected validation issues.
+    """
+
+    issues = {}
+
+    # SeniorCitizen must contain only 0 or 1.
+    invalid_senior_citizen = ~df["SeniorCitizen"].isin([0, 1])
+
+    if invalid_senior_citizen.any():
+        issues["SeniorCitizen"] = {
+            "issue": "Contains values other than 0 or 1",
+            "count": int(invalid_senior_citizen.sum()),
+        }
+
+    # Tenure must be greater than or equal to zero.
+    invalid_tenure = df["tenure"] < 0
+
+    if invalid_tenure.any():
+        issues["tenure"] = {
+            "issue": "Contains negative values",
+            "count": int(invalid_tenure.sum()),
+        }
+
+    # MonthlyCharges must be numeric and non-negative.
+    if not pd.api.types.is_numeric_dtype(df["MonthlyCharges"]):
+        issues["MonthlyCharges"] = {
+            "issue": "Column is not numeric",
+            "count": len(df),
+        }
+    else:
+        invalid_monthly_charges = df["MonthlyCharges"] < 0
+
+        if invalid_monthly_charges.any():
+            issues["MonthlyCharges"] = {
+                "issue": "Contains negative values",
+                "count": int(invalid_monthly_charges.sum()),
+            }
+
+    # TotalCharges should contain numeric values,
+    # except for known empty/whitespace values.
+    total_charges_clean = (
+        df["TotalCharges"]
+        .astype("string")
+        .str.strip()
+    )
+
+    non_empty_total_charges = total_charges_clean[
+        total_charges_clean != ""
+    ]
+
+    converted_total_charges = pd.to_numeric(
+        non_empty_total_charges,
+        errors="coerce",
+    )
+
+    invalid_total_charges = converted_total_charges.isna()
+
+    if invalid_total_charges.any():
+        issues["TotalCharges"] = {
+            "issue": "Contains non-numeric non-empty values",
+            "count": int(invalid_total_charges.sum()),
+        }
+
+    return issues
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -236,8 +305,21 @@ def main() -> None:
                 ["customerID", "tenure", "MonthlyCharges", "TotalCharges", "Churn"]
             ].to_string(index=False)
         )
+        print("\n=== Numerical Value Validation ===")
 
+    numerical_issues = validate_numerical_values(df)
 
+    if numerical_issues:
+        print("Numerical validation: INVESTIGATION REQUIRED")
+
+    for column, issue in numerical_issues.items():
+        print(
+            f"- {column}: "
+            f"{issue['issue']} "
+            f"(count={issue['count']})"
+        )
+    else:
+        print("Numerical validation: PASSED")
 
 if __name__ == "__main__":
     main()

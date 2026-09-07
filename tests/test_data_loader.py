@@ -8,7 +8,7 @@ from src.validation.validator import validate_schema
 from src.validation.validator import validate_data_types
 from src.validation.validator import validate_missing_values
 from src.validation.validator import validate_empty_strings
-
+from src.validation.validator import validate_numerical_values
 
 DATASET_PATH = (
     Path(__file__).resolve().parents[1]
@@ -70,3 +70,10 @@ def test_empty_string_validation_detects_total_charges_issue():
 
     assert "TotalCharges" in empty_values
     assert empty_values["TotalCharges"] == 11
+
+def test_numerical_values_are_valid():
+    df = load_dataset(DATASET_PATH)
+
+    numerical_issues = validate_numerical_values(df)
+
+    assert numerical_issues == {}
