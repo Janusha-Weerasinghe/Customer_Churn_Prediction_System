@@ -10,6 +10,7 @@ from src.validation.validator import validate_missing_values
 from src.validation.validator import validate_empty_strings
 from src.validation.validator import validate_numerical_values
 from src.validation.validator import validate_categorical_values
+from src.validation.validator import validate_duplicate_rows
 
 DATASET_PATH = (
     Path(__file__).resolve().parents[1]
@@ -78,10 +79,17 @@ def test_numerical_values_are_valid():
     numerical_issues = validate_numerical_values(df)
 
     assert numerical_issues == {}
-    
+
 def test_categorical_values_are_valid():
     df = load_dataset(DATASET_PATH)
 
     categorical_issues = validate_categorical_values(df)
 
     assert categorical_issues == {}
+
+def test_duplicate_rows_are_valid():
+    df = load_dataset(DATASET_PATH)
+
+    duplicate_row_issues = validate_duplicate_rows(df)
+
+    assert duplicate_row_issues == {}

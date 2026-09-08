@@ -289,6 +289,22 @@ def validate_categorical_values(df: pd.DataFrame) -> dict:
 
     return issues
 
+def validate_duplicate_rows(df: pd.DataFrame) -> dict:
+    """
+    Validate whether the dataset contains exact duplicate rows.
+
+    Returns a dictionary containing duplicate row information.
+    """
+
+    duplicate_count = int(df.duplicated().sum())
+
+    if duplicate_count > 0:
+        return {
+            "duplicate_rows": duplicate_count,
+        }
+
+    return {}
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -388,6 +404,20 @@ def main() -> None:
             )
     else:
         print("Categorical validation: PASSED")
+
+        print("\n=== Duplicate Row Validation ===")
+
+    duplicate_row_issues = validate_duplicate_rows(df)
+
+    if duplicate_row_issues:
+        print("Duplicate row validation: INVESTIGATION REQUIRED")
+
+        print(
+            f"- Duplicate rows: "
+            f"{duplicate_row_issues['duplicate_rows']}"
+        )
+    else:
+        print("Duplicate row validation: PASSED")
 
 if __name__ == "__main__":
     main()
