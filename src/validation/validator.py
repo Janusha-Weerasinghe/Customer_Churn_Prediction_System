@@ -322,6 +322,51 @@ def validate_duplicate_customer_ids(df: pd.DataFrame) -> dict:
         }
 
     return {}
+def validate_target_integrity(df: pd.DataFrame) -> dict:
+    """
+    Validate the integrity of the Churn target variable.
+
+    Returns a dictionary containing detected target issues.
+    """
+
+    issues = {}
+
+    target = df["Churn"]
+
+    # Check missing values.
+    missing_count = int(target.isna().sum())
+
+    if missing_count > 0:
+        issues["missing_values"] = missing_count
+
+    # Check empty/whitespace values.
+    empty_count = int(
+        target.astype("string").str.strip().eq("").sum()
+    )
+
+    if empty_count > 0:
+        issues["empty_values"] = empty_count
+
+    # Check unexpected target values.
+    allowed_values = {"Yes", "No"}
+
+    actual_values = set(target.dropna().unique())
+
+    unexpected_values = actual_values - allowed_values
+
+    if unexpected_values:
+        issues["unexpected_values"] = sorted(unexpected_values)
+
+    # Check that both target classes exist.
+    target_classes = set(target.dropna().unique())
+
+    if target_classes != allowed_values:
+        issues["class_integrity"] = {
+            "expected": sorted(allowed_values),
+            "actual": sorted(target_classes),
+        }
+
+    return issues
 
 def main() -> None:
     df = load_dataset(DATASET_PATH)
@@ -436,23 +481,18 @@ def main() -> None:
         )
     else:
         print("Duplicate row validation: PASSED")
-        
-        print("\n=== Duplicate Customer ID Validation ===")
 
-    duplicate_customer_id_issues = validate_duplicate_customer_ids(df)
+    print("\n=== Target Integrity Validation ===")
 
-    if duplicate_customer_id_issues:
-        print(
-            "Duplicate customer ID validation: "
-            "INVESTIGATION REQUIRED"
-        )
+    target_issues = validate_target_integrity(df)
 
-        print(
-            f"- Duplicate customer IDs: "
-            f"{duplicate_customer_id_issues['duplicate_customer_ids']}"
-        )
+    if target_issues:
+        print("Target integrity validation: INVESTIGATION REQUIRED")
+
+        for issue, value in target_issues.items():
+            print(f"- {issue}: {value}")
     else:
-        print("Duplicate customer ID validation: PASSED")
+        print("Target integrity validation: PASSED")
 
 if __name__ == "__main__":
     main()

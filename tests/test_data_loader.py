@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from src.data.loader import load_dataset
-from src.validation.validator import validate_schema
+from src.validation.validator import validate_schema, validate_target_integrity
 from src.validation.validator import validate_data_types
 from src.validation.validator import validate_missing_values
 from src.validation.validator import validate_empty_strings
@@ -103,3 +103,10 @@ def test_customer_ids_are_unique():
     )
 
     assert duplicate_customer_id_issues == {}
+
+def test_target_integrity_is_valid():
+    df = load_dataset(DATASET_PATH)
+
+    target_issues = validate_target_integrity(df)
+
+    assert target_issues == {}
