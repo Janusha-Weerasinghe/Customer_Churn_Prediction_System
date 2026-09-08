@@ -305,6 +305,24 @@ def validate_duplicate_rows(df: pd.DataFrame) -> dict:
 
     return {}
 
+def validate_duplicate_customer_ids(df: pd.DataFrame) -> dict:
+    """
+    Validate whether customer IDs are unique.
+
+    Returns a dictionary containing duplicate customer ID information.
+    """
+
+    duplicate_count = int(
+        df["customerID"].duplicated().sum()
+    )
+
+    if duplicate_count > 0:
+        return {
+            "duplicate_customer_ids": duplicate_count,
+        }
+
+    return {}
+
 def main() -> None:
     df = load_dataset(DATASET_PATH)
 
@@ -418,6 +436,23 @@ def main() -> None:
         )
     else:
         print("Duplicate row validation: PASSED")
+        
+        print("\n=== Duplicate Customer ID Validation ===")
+
+    duplicate_customer_id_issues = validate_duplicate_customer_ids(df)
+
+    if duplicate_customer_id_issues:
+        print(
+            "Duplicate customer ID validation: "
+            "INVESTIGATION REQUIRED"
+        )
+
+        print(
+            f"- Duplicate customer IDs: "
+            f"{duplicate_customer_id_issues['duplicate_customer_ids']}"
+        )
+    else:
+        print("Duplicate customer ID validation: PASSED")
 
 if __name__ == "__main__":
     main()

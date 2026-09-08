@@ -11,6 +11,7 @@ from src.validation.validator import validate_empty_strings
 from src.validation.validator import validate_numerical_values
 from src.validation.validator import validate_categorical_values
 from src.validation.validator import validate_duplicate_rows
+from src.validation.validator import validate_duplicate_customer_ids
 
 DATASET_PATH = (
     Path(__file__).resolve().parents[1]
@@ -93,3 +94,12 @@ def test_duplicate_rows_are_valid():
     duplicate_row_issues = validate_duplicate_rows(df)
 
     assert duplicate_row_issues == {}
+
+def test_customer_ids_are_unique():
+    df = load_dataset(DATASET_PATH)
+
+    duplicate_customer_id_issues = (
+        validate_duplicate_customer_ids(df)
+    )
+
+    assert duplicate_customer_id_issues == {}
