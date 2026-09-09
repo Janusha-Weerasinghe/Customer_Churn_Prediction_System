@@ -13,6 +13,13 @@ from src.validation.validator import validate_categorical_values
 from src.validation.validator import validate_duplicate_rows
 from src.validation.validator import validate_duplicate_customer_ids
 
+from src.analysis.eda import (
+    get_column_groups,
+    get_dataset_overview,
+    get_numerical_summary,
+    get_unique_value_summary,
+)
+
 DATASET_PATH = (
     Path(__file__).resolve().parents[1]
     / "data"
@@ -110,3 +117,38 @@ def test_target_integrity_is_valid():
     target_issues = validate_target_integrity(df)
 
     assert target_issues == {}
+
+def test_dataset_overview_is_correct():
+    df = load_dataset(DATASET_PATH)
+
+    overview = get_dataset_overview(df)
+
+    assert overview["rows"] == 7043
+    assert overview["columns"] == 21
+
+
+def test_column_groups_are_not_empty():
+    df = load_dataset(DATASET_PATH)
+
+    groups = get_column_groups(df)
+
+    assert groups["numerical"]
+    assert groups["categorical"]
+
+
+def test_numerical_summary_contains_expected_columns():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_numerical_summary(df)
+
+    assert "SeniorCitizen" in summary.index
+    assert "tenure" in summary.index
+    assert "MonthlyCharges" in summary.index
+
+
+def test_unique_value_summary_contains_all_columns():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_unique_value_summary(df)
+
+    assert len(summary) == 21
