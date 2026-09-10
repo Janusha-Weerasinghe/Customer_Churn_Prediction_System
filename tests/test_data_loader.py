@@ -23,6 +23,8 @@ from src.analysis.eda import (
     get_numerical_summary,
     get_target_distribution,
     get_unique_value_summary,
+    get_category_churn_rates,
+    get_categorical_churn_summary,
 )
 
 DATASET_PATH = (
@@ -233,3 +235,65 @@ def test_churn_numerical_summary_contains_expected_statistics():
     }
 
     assert expected_columns.issubset(summary.columns)
+
+def test_category_churn_rates_contains_expected_columns():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_category_churn_rates(
+        df,
+        "Contract",
+    )
+
+    expected_columns = {
+        "customers",
+        "churned",
+        "churn_rate",
+    }
+
+    assert expected_columns.issubset(
+        summary.columns
+    )
+
+
+def test_category_churn_rates_contains_contract_categories():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_category_churn_rates(
+        df,
+        "Contract",
+    )
+
+    assert "Month-to-month" in summary.index
+    assert "One year" in summary.index
+    assert "Two year" in summary.index
+
+
+def test_categorical_churn_summary_contains_expected_features():
+    df = load_dataset(DATASET_PATH)
+
+    features = [
+        "Contract",
+        "InternetService",
+        "PaymentMethod",
+    ]
+
+    summary = get_categorical_churn_summary(
+        df,
+        features,
+    )
+
+    assert set(summary["feature"]) == set(features)
+
+
+def test_categorical_churn_summary_contains_valid_rates():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_categorical_churn_summary(
+        df,
+        ["Contract"],
+    )
+
+    assert summary["churn_rate"].between(
+        0,
+        100,
+    ).all()
