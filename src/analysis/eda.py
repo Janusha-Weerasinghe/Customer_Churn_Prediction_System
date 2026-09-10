@@ -416,6 +416,29 @@ def plot_churn_rate_by_category(
     plt.tight_layout()
     plt.show()
 
+def save_categorical_churn_summary(
+    df: pd.DataFrame,
+    features: list[str],
+) -> None:
+    """
+    Save categorical churn analysis results.
+    """
+
+    summary = get_categorical_churn_summary(
+        df,
+        features,
+    )
+
+    output_path = (
+        EDA_ARTIFACTS_DIR
+        / "categorical_churn_summary.csv"
+    )
+
+    summary.to_csv(
+        output_path,
+        index=False,
+    )
+
 if __name__ == "__main__":
     df = load_eda_dataset()
 
@@ -515,3 +538,8 @@ if __name__ == "__main__":
 
     print("\n=== Categorical Churn Analysis ===")
     print(categorical_summary.to_string(index=False))
+
+    save_categorical_churn_summary(
+        df,
+        categorical_features,
+    )
