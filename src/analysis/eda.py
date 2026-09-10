@@ -489,3 +489,29 @@ if __name__ == "__main__":
         f"Saved EDA outputs to: "
         f"{EDA_ARTIFACTS_DIR}"
     )
+
+    categorical_features = [
+        "Contract",
+        "InternetService",
+        "PaymentMethod",
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "PaperlessBilling",
+        "Partner",
+        "Dependents",
+        "PhoneService",
+        "MultipleLines",
+        "StreamingTV",
+        "StreamingMovies",
+        "gender",
+    ]
+
+    categorical_summary = get_categorical_churn_summary(
+        df,
+        categorical_features,
+    )
+
+    print("\n=== Categorical Churn Analysis ===")
+    print(categorical_summary.to_string(index=False))
