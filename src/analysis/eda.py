@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from src.data.loader import load_dataset
 
@@ -76,6 +77,86 @@ def get_unique_value_summary(df: pd.DataFrame) -> pd.DataFrame:
 
     return summary
 
+def get_target_distribution(
+    df: pd.DataFrame,
+    target_column: str = "Churn",
+) -> pd.DataFrame:
+    """
+    Calculate target class counts and percentages.
+    """
+
+    counts = df[target_column].value_counts()
+
+    distribution = pd.DataFrame({
+        "count": counts,
+        "percentage": (
+            counts / len(df) * 100
+        ).round(2),
+    })
+
+    return distribution
+
+
+def get_churn_rate(
+    df: pd.DataFrame,
+    target_column: str = "Churn",
+) -> float:
+    """
+    Calculate the percentage of customers who churned.
+    """
+
+    churn_count = (
+        df[target_column]
+        .eq("Yes")
+        .sum()
+    )
+
+    return round(
+        churn_count / len(df) * 100,
+        2,
+    )
+
+
+def get_class_imbalance_ratio(
+    df: pd.DataFrame,
+    target_column: str = "Churn",
+) -> float:
+    """
+    Calculate the ratio between the majority and minority classes.
+    """
+
+    class_counts = df[target_column].value_counts()
+
+    majority_count = class_counts.max()
+    minority_count = class_counts.min()
+
+    return round(
+        majority_count / minority_count,
+        2,
+    )
+
+def plot_target_distribution(
+    df: pd.DataFrame,
+    target_column: str = "Churn",
+) -> None:
+    """
+    Plot the distribution of the target variable.
+    """
+
+    counts = df[target_column].value_counts()
+
+    plt.figure(figsize=(7, 5))
+
+    counts.plot(kind="bar")
+
+    plt.title("Customer Churn Distribution")
+    plt.xlabel("Churn")
+    plt.ylabel("Number of Customers")
+
+    plt.xticks(rotation=0)
+
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     df = load_eda_dataset()
@@ -102,3 +183,21 @@ if __name__ == "__main__":
 
     print("\n=== Unique Value Summary ===")
     print(unique_summary.to_string(index=False))
+
+    target_distribution = get_target_distribution(df)
+    churn_rate = get_churn_rate(df)
+    imbalance_ratio = get_class_imbalance_ratio(df)
+
+    print("\n=== Target Distribution ===")
+    print(target_distribution.to_string())
+
+    print("\n=== Churn Rate ===")
+    print(f"Churn rate: {churn_rate}%")
+
+    print("\n=== Class Imbalance ===")
+    print(
+        f"Majority/minority class ratio: "
+        f"{imbalance_ratio}:1"
+    )
+
+    plot_target_distribution(df)

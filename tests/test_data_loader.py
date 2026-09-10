@@ -14,9 +14,12 @@ from src.validation.validator import validate_duplicate_rows
 from src.validation.validator import validate_duplicate_customer_ids
 
 from src.analysis.eda import (
+    get_churn_rate,
+    get_class_imbalance_ratio,
     get_column_groups,
     get_dataset_overview,
     get_numerical_summary,
+    get_target_distribution,
     get_unique_value_summary,
 )
 
@@ -152,3 +155,36 @@ def test_unique_value_summary_contains_all_columns():
     summary = get_unique_value_summary(df)
 
     assert len(summary) == 21
+
+def test_target_distribution_contains_both_classes():
+    df = load_dataset(DATASET_PATH)
+
+    distribution = get_target_distribution(df)
+
+    assert "Yes" in distribution.index
+    assert "No" in distribution.index
+
+
+def test_target_distribution_counts_are_correct():
+    df = load_dataset(DATASET_PATH)
+
+    distribution = get_target_distribution(df)
+
+    assert distribution.loc["No", "count"] == 5174
+    assert distribution.loc["Yes", "count"] == 1869
+
+
+def test_churn_rate_is_correct():
+    df = load_dataset(DATASET_PATH)
+
+    churn_rate = get_churn_rate(df)
+
+    assert churn_rate == 26.54
+
+
+def test_class_imbalance_ratio_is_correct():
+    df = load_dataset(DATASET_PATH)
+
+    ratio = get_class_imbalance_ratio(df)
+
+    assert ratio == 2.77
