@@ -15,6 +15,14 @@ DATASET_PATH = (
     / "WA_Fn-UseC_-Telco-Customer-Churn.csv"
 )
 
+EDA_ARTIFACTS_DIR = PROJECT_ROOT / "artifacts" / "eda"
+
+EDA_ARTIFACTS_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+
 
 def load_eda_dataset() -> pd.DataFrame:
     """
@@ -262,7 +270,74 @@ def plot_numerical_features_by_churn(
 
         plt.tight_layout()
         plt.show()
+def save_target_distribution(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Save target distribution statistics.
+    """
 
+    distribution = get_target_distribution(df)
+
+    output_path = (
+        EDA_ARTIFACTS_DIR
+        / "target_distribution.csv"
+    )
+
+    distribution.to_csv(output_path)
+
+
+def save_numerical_statistics(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Save numerical feature statistics.
+    """
+
+    statistics = get_numerical_statistics(df)
+
+    output_path = (
+        EDA_ARTIFACTS_DIR
+        / "numerical_statistics.csv"
+    )
+
+    statistics.to_csv(output_path)
+
+
+def save_churn_numerical_summary(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Save numerical feature statistics grouped by churn.
+    """
+
+    rows = []
+
+    for feature in ["tenure", "MonthlyCharges"]:
+        summary = get_churn_by_numerical_feature(
+            df,
+            feature,
+        )
+
+        summary = summary.reset_index()
+        summary.insert(0, "feature", feature)
+
+        rows.append(summary)
+
+    combined_summary = pd.concat(
+        rows,
+        ignore_index=True,
+    )
+
+    output_path = (
+        EDA_ARTIFACTS_DIR
+        / "churn_numerical_summary.csv"
+    )
+
+    combined_summary.to_csv(
+        output_path,
+        index=False,
+    )
 
 if __name__ == "__main__":
     df = load_eda_dataset()
@@ -327,3 +402,13 @@ if __name__ == "__main__":
 
     plot_numerical_distributions(df)
     plot_numerical_features_by_churn(df)
+
+    save_target_distribution(df)
+    save_numerical_statistics(df)
+    save_churn_numerical_summary(df)
+
+    print("\n=== EDA Artifacts ===")
+    print(
+        f"Saved EDA outputs to: "
+        f"{EDA_ARTIFACTS_DIR}"
+    )

@@ -1,0 +1,5 @@
+feature,Churn,count,mean,median,minimum,maximum
+tenure,No,5174,37.57,38.0,0.0,72.0
+tenure,Yes,1869,17.98,10.0,1.0,72.0
+MonthlyCharges,No,5174,61.27,64.43,18.25,118.75
+MonthlyCharges,Yes,1869,74.44,79.65,18.85,118.35
