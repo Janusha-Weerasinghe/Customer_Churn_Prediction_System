@@ -367,6 +367,29 @@ def get_category_churn_rates(
         ascending=False,
     )
 
+def get_categorical_churn_summary(
+    df: pd.DataFrame,
+    features: list[str],
+) -> pd.DataFrame:
+    """
+    Generate churn-rate summaries for multiple categorical features.
+    """
+
+    results = []
+
+    for feature in features:
+        summary = get_category_churn_rates(df, feature)
+
+        for category, row in summary.iterrows():
+            results.append({
+                "feature": feature,
+                "category": category,
+                "customers": int(row["customers"]),
+                "churned": int(row["churned"]),
+                "churn_rate": float(row["churn_rate"]),
+            })
+
+    return pd.DataFrame(results)
 
 if __name__ == "__main__":
     df = load_eda_dataset()
