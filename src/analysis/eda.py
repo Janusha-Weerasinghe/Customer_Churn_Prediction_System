@@ -543,3 +543,17 @@ if __name__ == "__main__":
         df,
         categorical_features,
     )
+
+    priority_features = [
+        "Contract",
+        "InternetService",
+        "PaymentMethod",
+        "TechSupport",
+        "OnlineSecurity",
+    ]
+
+    for feature in priority_features:
+        plot_churn_rate_by_category(
+            df,
+            feature,
+        )
