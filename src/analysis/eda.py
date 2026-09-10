@@ -391,6 +391,31 @@ def get_categorical_churn_summary(
 
     return pd.DataFrame(results)
 
+def plot_churn_rate_by_category(
+    df: pd.DataFrame,
+    feature: str,
+) -> None:
+    """
+    Plot churn rate for each category of a categorical feature.
+    """
+
+    summary = get_category_churn_rates(df, feature)
+
+    plt.figure(figsize=(9, 5))
+
+    summary["churn_rate"].plot(
+        kind="bar",
+    )
+
+    plt.title(f"Churn Rate by {feature}")
+    plt.xlabel(feature)
+    plt.ylabel("Churn Rate (%)")
+
+    plt.xticks(rotation=30, ha="right")
+
+    plt.tight_layout()
+    plt.show()
+
 if __name__ == "__main__":
     df = load_eda_dataset()
 
