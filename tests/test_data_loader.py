@@ -14,10 +14,12 @@ from src.validation.validator import validate_duplicate_rows
 from src.validation.validator import validate_duplicate_customer_ids
 
 from src.analysis.eda import (
+    get_churn_by_numerical_feature,
     get_churn_rate,
     get_class_imbalance_ratio,
     get_column_groups,
     get_dataset_overview,
+    get_numerical_statistics,
     get_numerical_summary,
     get_target_distribution,
     get_unique_value_summary,
@@ -188,3 +190,46 @@ def test_class_imbalance_ratio_is_correct():
     ratio = get_class_imbalance_ratio(df)
 
     assert ratio == 2.77
+
+def test_numerical_statistics_contains_expected_features():
+    df = load_dataset(DATASET_PATH)
+
+    statistics = get_numerical_statistics(df)
+
+    assert "SeniorCitizen" in statistics.index
+    assert "tenure" in statistics.index
+    assert "MonthlyCharges" in statistics.index
+
+    assert "median" in statistics.columns
+    assert "skewness" in statistics.columns
+
+
+def test_churn_numerical_summary_contains_both_classes():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_churn_by_numerical_feature(
+        df,
+        "tenure",
+    )
+
+    assert "No" in summary.index
+    assert "Yes" in summary.index
+
+
+def test_churn_numerical_summary_contains_expected_statistics():
+    df = load_dataset(DATASET_PATH)
+
+    summary = get_churn_by_numerical_feature(
+        df,
+        "MonthlyCharges",
+    )
+
+    expected_columns = {
+        "count",
+        "mean",
+        "median",
+        "minimum",
+        "maximum",
+    }
+
+    assert expected_columns.issubset(summary.columns)

@@ -158,6 +158,112 @@ def plot_target_distribution(
     plt.tight_layout()
     plt.show()
 
+def get_numerical_statistics(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Generate extended descriptive statistics for numerical features.
+    """
+
+    numerical_columns = [
+        "SeniorCitizen",
+        "tenure",
+        "MonthlyCharges",
+    ]
+
+    statistics = df[numerical_columns].describe().T
+
+    statistics["median"] = (
+        df[numerical_columns].median()
+    )
+
+    statistics["skewness"] = (
+        df[numerical_columns].skew()
+    )
+
+    return statistics
+
+# Add numerical-analysis functions
+def get_churn_by_numerical_feature(
+    df: pd.DataFrame,
+    feature: str,
+) -> pd.DataFrame:
+    """
+    Calculate numerical feature statistics grouped by churn.
+    """
+
+    return (
+        df.groupby("Churn")[feature]
+        .agg(
+            count="count",
+            mean="mean",
+            median="median",
+            minimum="min",
+            maximum="max",
+        )
+        .round(2)
+    )
+
+
+#Add numerical distribution plots
+def plot_numerical_distributions(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Plot distributions for numerical features.
+    """
+
+    numerical_columns = [
+        "SeniorCitizen",
+        "tenure",
+        "MonthlyCharges",
+    ]
+
+    for column in numerical_columns:
+        plt.figure(figsize=(8, 5))
+
+        df[column].plot(
+            kind="hist",
+            bins=30,
+        )
+
+        plt.title(f"Distribution of {column}")
+        plt.xlabel(column)
+        plt.ylabel("Frequency")
+
+        plt.tight_layout()
+        plt.show()
+
+# Add churn comparison plots
+def plot_numerical_features_by_churn(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Compare numerical feature distributions between churn classes.
+    """
+
+    numerical_columns = [
+        "tenure",
+        "MonthlyCharges",
+    ]
+
+    for column in numerical_columns:
+        plt.figure(figsize=(8, 5))
+
+        df.boxplot(
+            column=column,
+            by="Churn",
+        )
+
+        plt.title(f"{column} by Churn")
+        plt.suptitle("")
+        plt.xlabel("Churn")
+        plt.ylabel(column)
+
+        plt.tight_layout()
+        plt.show()
+
+
 if __name__ == "__main__":
     df = load_eda_dataset()
 
@@ -201,3 +307,23 @@ if __name__ == "__main__":
     )
 
     plot_target_distribution(df)
+
+    numerical_statistics = get_numerical_statistics(df)
+
+    print("\n=== Extended Numerical Statistics ===")
+    print(numerical_statistics.to_string())
+
+    print("\n=== Numerical Features by Churn ===")
+
+    for feature in ["tenure", "MonthlyCharges"]:
+        print(f"\n--- {feature} ---")
+
+        churn_summary = get_churn_by_numerical_feature(
+            df,
+            feature,
+        )
+
+        print(churn_summary.to_string())
+
+    plot_numerical_distributions(df)
+    plot_numerical_features_by_churn(df)
