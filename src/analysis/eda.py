@@ -339,6 +339,35 @@ def save_churn_numerical_summary(
         index=False,
     )
 
+def get_category_churn_rates(
+    df: pd.DataFrame,
+    feature: str,
+    target_column: str = "Churn",
+) -> pd.DataFrame:
+    """
+    Calculate customer count and churn rate for each category.
+    """
+
+    summary = (
+        df.groupby(feature)[target_column]
+        .agg(
+            customers="count",
+            churned=lambda x: (x == "Yes").sum(),
+        )
+    )
+
+    summary["churn_rate"] = (
+        summary["churned"]
+        / summary["customers"]
+        * 100
+    ).round(2)
+
+    return summary.sort_values(
+        "churn_rate",
+        ascending=False,
+    )
+
+
 if __name__ == "__main__":
     df = load_eda_dataset()
 
